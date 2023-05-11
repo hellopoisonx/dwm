@@ -1,0 +1,3 @@
+[submodule "script/lemonbar"]
+	path = script/lemonbar
+	url = git@github.com:hellopoisonx/lemonbar.git

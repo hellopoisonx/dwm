@@ -1,6 +1,8 @@
 #!/bin/sh
-fcitx5 -b
-picom --experimental-backend -b
-udiskie &
+fcitx5 -d
+picom --experimental-backend --config ~/.config/picom.conf -b
+python ~/dwm/script/background.py
+~/lemonbar/__init__.py
+diskie &
 dunst &
-pulseaudio -k && pulseaudio --start
+pulseaudio -k ; sleep 2s ;pulseaudio --start

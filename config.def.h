@@ -7,7 +7,7 @@ static const int showbar            = 1;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
 static const int usealtbar          = 1;        /* 1 means use non-dwm status bar */
 static const char *altbarclass      = "Bar"; /* Alternate bar class name */
-static const char *altbarcmd        = "python $HOME/lemonbar/__init__.py"; /* Alternate bar launch command */
+static const char *altbarcmd        = "~/lemonbar/start.sh"; /* Alternate bar launch command */
 static const char *fonts[]          = { "JetBrainsMono Nerd Font:size=13" };
 static const char dmenufont[]       = "JetBrainsMono Nerd Font:size=13";
 static unsigned int baralpha        = 0xd0;
@@ -24,7 +24,7 @@ static const char *colors[][3]      = {
 };
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5" };
+static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
 static const Rule rules[] = {
 	/* xprop(1):

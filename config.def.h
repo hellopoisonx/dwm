@@ -16,9 +16,7 @@ static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
 static const char col_gray4[]       = "#eeeeee";
-static const char col_cyan[]        = "#005577";
-static const char *colors[][3]      = {
-	/*               fg         bg         border   */
+static const char col_cyan[]        = "#005577"; static const char *colors[][3]      = { /*               fg         bg         border   */
 	[SchemeNorm] = { col_gray3, col_gray1, col_gray2 },
 	[SchemeSel]  = { col_gray4, col_cyan,  col_cyan  },
 };
@@ -67,6 +65,7 @@ static const char *termcmd[]  = { "kitty", NULL };
 
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
+  {MODKEY | ShiftMask, XK_m, spawn, SHCMD("rofi -show power-menu -modi power-menu:/home/hpxx/.local/bin/rofi-power-menu") },
     {MODKEY | ShiftMask, XK_p, spawn, SHCMD("flameshot gui")},
     {MODKEY, XK_F1, spawn, SHCMD("amixer sset Master toggle")},
     {MODKEY, XK_F2, spawn, SHCMD("amixer sset Master 5%-")},

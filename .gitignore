@@ -1,7 +1,6 @@
 # Prerequisites
 *.d
 dwm
-config.h
 # Object files
 *.o
 *.ko

@@ -6,6 +6,7 @@ static const unsigned int gappx = 5;    /* gaps between windows */
 static const unsigned int snap = 32;    /* snap pixel */
 static const int showbar = 1;           /* 0 means no bar */
 static const int topbar = 1;            /* 0 means bottom bar */
+static const unsigned int newclientattail = 1; 
 static const int usealtbar = 1;         /* 1 means use non-dwm status bar */
 static const char *altbarclass = "Bar"; /* Alternate bar class name */
 static const char *altbarcmd =
@@ -52,6 +53,7 @@ static const Layout layouts[] = {
     {"[]=", tile}, /* first entry is default */
     {"><>", NULL}, /* no layout function means floating behavior */
     {"[M]", monocle},
+    {"HHH", grid},
 };
 
 /* key definitions */
@@ -96,6 +98,7 @@ static const Key keys[] = {
     {MODKEY, XK_t, setlayout, {.v = &layouts[0]}},
     {MODKEY, XK_f, setlayout, {.v = &layouts[1]}},
     {MODKEY, XK_m, setlayout, {.v = &layouts[2]}},
+    {MODKEY, XK_g, setlayout, {.v = &layouts[3]}},
     {MODKEY | ShiftMask, XK_f, fullscreen, {0}},
     {MODKEY, XK_space, setlayout, {0}},
     {MODKEY | ShiftMask, XK_space, togglefloating, {0}},

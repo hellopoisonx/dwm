@@ -23,7 +23,7 @@ script_prefix="/home/hpxx/dwm/scripts/"
 "${script_prefix}time.sh" "$time_result" &
 "${script_prefix}traffic.sh" "$traffic_result" &
 
-while xsetroot -name "$time | $traffic | $light | $volume"; do
+while xsetroot -name "$traffic | $light | $volume | $time"; do
     light=$(head -n 1 "$light_result")
     traffic=$(head -n 1 "$traffic_result")
     time=$(head -n 1 "$time_result")

@@ -2,10 +2,17 @@
   description = "dwm";
 
   # Nixpkgs / NixOS version to use.
-  inputs.nixpkgs.url = "nixpkgs/nixos-unstable";
+  inputs = {
+    nixpkgs.url = "nixpkgs/nixos-unstable";
+    nixvim.url = "github:hellopoisonx/nixvim";
+  };
 
   outputs =
-    { self, nixpkgs }:
+    {
+      self,
+      nixpkgs,
+      nixvim,
+    }:
     let
 
       # to work with older version of flakes
@@ -39,6 +46,8 @@
       # A Nixpkgs overlay.
       overlay = final: prev: {
 
+        nixvim = forAllSystems (system: nixvim.packages.${system}.c-cpp);
+
         dwm = final.stdenv.mkDerivation {
           pname = "dwm";
           inherit version;
@@ -48,6 +57,11 @@
             xorg.libX11
             xorg.libXinerama
             xorg.libXft
+          ];
+          nativeBuildInputs = with final; [
+            pkg-config
+            makeWrapper
+            nixvim
           ];
           prePatch = ''
             sed -i "s@/usr/local@$out@" config.mk

@@ -53,6 +53,7 @@
             xorg.libX11
             xorg.libXinerama
             xorg.libXft
+            xorg.libXrender
           ];
           nativeBuildInputs = with final; [
             pkg-config

@@ -1,88 +1,76 @@
 {
   description = "dwm";
 
-  # Nixpkgs / NixOS version to use.
   inputs = {
+    flake-parts.url = "github:hercules-ci/flake-parts";
     nixpkgs.url = "nixpkgs/nixos-unstable";
     nixvim.url = "github:hellopoisonx/nixvim";
+    slock.url = "github:hellopoisonx/slock";
+    dmenu.url = "github:hellopoisonx/dmenu";
   };
 
   outputs =
-    {
-      self,
-      nixpkgs,
-      nixvim,
-      ...
-    }:
-    let
-
-      # to work with older version of flakes
-      lastModifiedDate = self.lastModifiedDate or self.lastModified or "19700101";
-
-      # Generate a user-friendly version number.
-      version = builtins.substring 0 8 lastModifiedDate;
-
-      # System types to support.
-      supportedSystems = [
+    inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [
         "x86_64-linux"
-        "x86_64-darwin"
         "aarch64-linux"
         "aarch64-darwin"
+        "x86_64-darwin"
       ];
+      perSystem =
+        {
+          self',
+          inputs',
+          pkgs,
+          ...
+        }:
+        let
+          lastModifiedDate = self'.lastModifiedDate or self'.lastModified or "19700101";
+          version = builtins.substring 0 8 lastModifiedDate;
+        in
+        {
+          packages.dwm =
+            with pkgs;
+            stdenv.mkDerivation {
+              pname = "dwm";
+              inherit version;
 
-      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-
-      nixpkgsFor = forAllSystems (
-        system:
-        import nixpkgs {
-          inherit system;
-          overlays = [ self.overlay ];
-        }
-      );
-    in
-    {
-
-      # A Nixpkgs overlay.
-      overlay = final: prev: {
-        dwm = final.stdenv.mkDerivation {
-          pname = "dwm";
-          inherit version;
-
-          src = ./.;
-          buildInputs = with final; [
-            xorg.libX11
-            xorg.libXinerama
-            xorg.libXft
-            xorg.libXrender
-          ];
-          nativeBuildInputs = with final; [
-            pkg-config
-            makeWrapper
-            nixvim.packages.${final.system}.c-cpp
-            bear
-          ];
-          preConfigure = ''
-            sed -i "s@/usr/local@$out@" config.mk
-            makeFlagsArray+=(
-              CC="$CC"
-              INCS="`$PKG_CONFIG --cflags fontconfig x11`"
-              LIBS="`$PKG_CONFIG --libs   fontconfig x11 xft xinerama xrender`"
-            )
-          '';
-          buildPhase = ''
-            make clean
-            make all
-          '';
-          installPhase = ''
-            make clean install
-          '';
+              src = ./.;
+              buildInputs = [
+                xorg.libX11
+                xorg.libXinerama
+                xorg.libXft
+                xorg.libXrender
+                inputs'.dmenu.packages.default
+                inputs'.slock.packages.default
+              ];
+              nativeBuildInputs = [
+                pkg-config
+                makeWrapper
+                inputs'.nixvim.packages.c-cpp
+                bear
+              ];
+              preConfigure = ''
+                sed -i "s@/usr/local@$out@" config.mk
+                dmenu_location="${lib.getExe' inputs'.dmenu.packages.default "dmenu_run"}"
+                echo "Found dmenu in $dmenu_location"
+                sed -i "s@\@dmenu_run_placeholder\@@$dmenu_location@" config.def.h
+                makeFlagsArray+=(
+                  CC="$CC"
+                  INCS="`$PKG_CONFIG --cflags fontconfig x11`"
+                  LIBS="`$PKG_CONFIG --libs   fontconfig x11 xft xinerama xrender`"
+                )
+              '';
+              buildPhase = ''
+                make clean
+                make all
+              '';
+              installPhase = ''
+                make clean install
+              '';
+            };
+          packages.default = self'.packages.dwm;
         };
-
-      };
-
-      packages = forAllSystems (system: {
-        inherit (nixpkgsFor.${system}) dwm;
-      });
-      defaultPackage = forAllSystems (system: self.packages.${system}.dwm);
     };
 }

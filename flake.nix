@@ -12,6 +12,7 @@
       self,
       nixpkgs,
       nixvim,
+      ...
     }:
     let
 
@@ -38,16 +39,11 @@
           overlays = [ self.overlay ];
         }
       );
-
     in
-
     {
 
       # A Nixpkgs overlay.
       overlay = final: prev: {
-
-        nixvim = forAllSystems (system: nixvim.packages.${system}.c-cpp);
-
         dwm = final.stdenv.mkDerivation {
           pname = "dwm";
           inherit version;
@@ -61,10 +57,16 @@
           nativeBuildInputs = with final; [
             pkg-config
             makeWrapper
-            nixvim
+            nixvim.packages.${final.system}.c-cpp
+            bear
           ];
-          prePatch = ''
+          preConfigure = ''
             sed -i "s@/usr/local@$out@" config.mk
+            makeFlagsArray+=(
+              CC="$CC"
+              INCS="`$PKG_CONFIG --cflags fontconfig x11`"
+              LIBS="`$PKG_CONFIG --libs   fontconfig x11 xft xinerama xrender`"
+            )
           '';
           buildPhase = ''
             make clean
@@ -77,22 +79,9 @@
 
       };
 
-      # Provide some binary packages for selected system types.
       packages = forAllSystems (system: {
         inherit (nixpkgsFor.${system}) dwm;
       });
-
-      # The default package for 'nix build'. This makes sense if the
-      # flake provides only one package or there is a clear "main"
-      # package.
       defaultPackage = forAllSystems (system: self.packages.${system}.dwm);
-
-      nixosModules.dwm =
-        { pkgs, ... }:
-        {
-          nixpkgs.overlays = [ self.overlay ];
-
-          environment.systemPackages = [ pkgs.dwm ];
-        };
     };
 }

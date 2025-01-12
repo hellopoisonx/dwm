@@ -77,6 +77,8 @@ static const char *light_down[] = { "/usr/bin/light",   "-U", "5", NULL };
 
 static const char *lock[] = { "slock", NULL };
 
+static const char *screenshot[] = { "flameshot", "gui", NULL };
+
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
     { 0,				            XF86XK_MonBrightnessUp,		spawn,	{.v = light_up} },
@@ -84,6 +86,7 @@ static const Key keys[] = {
 	{ 0,                            XF86XK_AudioLowerVolume, spawn, {.v = downvol } },
 	{ 0,                            XF86XK_AudioMute, spawn, {.v = mutevol } },
 	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = upvol   } },
+	{ MODKEY|ShiftMask,             XK_p,      spawn,          {.v = screenshot } },
 	{ MODKEY|ShiftMask,             XK_l,      spawn,          {.v = lock } },
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },

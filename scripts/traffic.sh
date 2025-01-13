@@ -27,8 +27,8 @@ calc() {
     prev_up=$up
     prev_down=$down
 
-    _up=$(printf "%9s" "$(to_human_readable "$upload_speed")")
-    _down=$(printf "%9s" "$(to_human_readable "$download_speed")")
+    _up=$(printf "%8s" "$(to_human_readable "$upload_speed")")
+    _down=$(printf "%8s" "$(to_human_readable "$download_speed")")
 
     echo ":$_up :$_down"
 }

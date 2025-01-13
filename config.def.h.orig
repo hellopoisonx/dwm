@@ -15,17 +15,19 @@ static const unsigned int baralpha = 0xd0;
 static const unsigned int borderalpha = OPAQUE;
 static const char *colors[][3]      = {
 	/*               fg         bg         border   */
-	[SchemeNorm] = { fg,        bg,        border      },
-	[SchemeSel]  = { sel_fg,    sel_bg,    sel_border  },
+	[SchemeNorm]  = { fg,        bg,        border      },
+	[SchemeSel]   = { sel_fg,    sel_bg,    sel_border  },
+	[SchemeTitle] = { fg,        bg,        border      },
 };
 static const unsigned int alphas[][3]      = {
     /*               fg      bg        border*/
-    [SchemeNorm] = { OPAQUE, baralpha, borderalpha },
-	[SchemeSel]  = { OPAQUE, baralpha, borderalpha },
+    [SchemeNorm]   = { OPAQUE, baralpha, borderalpha },
+	[SchemeSel]    = { OPAQUE, baralpha, borderalpha },
+	[SchemeTitle]  = { OPAQUE, baralpha, borderalpha },
 };
 
 /* tagging */
-static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+static const char *tags[] = { "󰎤", "󰎧", "󰎪", "󰎭", "󰎱", "󰎳", "󰎶", "󰎹", "󰎼" };
 
 static const Rule rules[] = {
 	/* xprop(1):
@@ -46,7 +48,7 @@ static const int lockfullscreen = 1; /* 1 will force focus on the fullscreen win
 static const Layout layouts[] = {
 	/* symbol     arrange function */
 	{ "[T]",      tile },    /* first entry is default */
-	{ "[]",      NULL },    /* no layout function means floating behavior */
+	{ "[]",       NULL },    /* no layout function means floating behavior */
 	{ "[M]",      monocle },
 };
 
@@ -63,7 +65,7 @@ static const Layout layouts[] = {
 
 /* commands */
 static char dmenumon[2] = "0"; /* component of dmenucmd, manipulated in spawn() */
-static const char *dmenucmd[] = { "rofi", "-show", "drun", "-show-icons", NULL };
+static const char *dmenucmd[] = { "dmenu_run", NULL };
 static const char *termcmd[]  = { "kitty", NULL };
 
 static const char *upvol[]   = { "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%", NULL };
@@ -73,6 +75,10 @@ static const char *mutevol[] = { "pactl", "set-sink-mute", "@DEFAULT_SINK@", "to
 static const char *light_up[]   = { "/usr/bin/light",   "-A", "5", NULL };
 static const char *light_down[] = { "/usr/bin/light",   "-U", "5", NULL };
 
+static const char *lock[] = { "slock", NULL };
+
+static const char *screenshot[] = { "flameshot", "gui", NULL };
+
 static const Key keys[] = {
 	/* modifier                     key        function        argument */
     { 0,				            XF86XK_MonBrightnessUp,		spawn,	{.v = light_up} },
@@ -80,6 +86,8 @@ static const Key keys[] = {
 	{ 0,                            XF86XK_AudioLowerVolume, spawn, {.v = downvol } },
 	{ 0,                            XF86XK_AudioMute, spawn, {.v = mutevol } },
 	{ 0,                            XF86XK_AudioRaiseVolume, spawn, {.v = upvol   } },
+	{ MODKEY|ShiftMask,             XK_p,      spawn,          {.v = screenshot } },
+	{ MODKEY|ShiftMask,             XK_l,      spawn,          {.v = lock } },
 	{ MODKEY,                       XK_p,      spawn,          {.v = dmenucmd } },
 	{ MODKEY|ShiftMask,             XK_Return, spawn,          {.v = termcmd } },
 	{ MODKEY,                       XK_b,      togglebar,      {0} },

@@ -3,7 +3,7 @@
 #include "themes/catppuccin.h"
 #include "fibonacci.c"
 /* appearance */
-static const unsigned int borderpx  = 4;        /* border pixel of windows */
+static const unsigned int borderpx  = 2;        /* border pixel of windows */
 static const unsigned int gappx     = 8;        /* gaps between windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const int showbar            = 1;        /* 0 means no bar */

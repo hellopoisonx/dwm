@@ -24,13 +24,13 @@ static const char *colors[][3]      = {
 static const unsigned int alphas[][3]      = {
     /*               fg      bg        border*/
     [SchemeNorm]   = { OPAQUE, baralpha, borderalpha },
-	[SchemeSel]    = { OPAQUE, baralpha, borderalpha },
+	[SchemeSel]    = { OPAQUE, OPAQUE,   borderalpha },
 	[SchemeHid]    = { OPAQUE, baralpha, borderalpha },
-	[SchemeTitle]  = { OPAQUE, baralpha, borderalpha },
+	[SchemeTitle]  = { OPAQUE, OPAQUE,   borderalpha },
 };
 
 /* tagging */
-static const char *tags[] = { "󰎤", "󰎧", "󰎪", "󰎭", "󰎱", "󰎳", "󰎶", "󰎹", "󰎼" };
+static const char *tags[] = { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
 
 static const Rule rules[] = {
 	/* xprop(1):

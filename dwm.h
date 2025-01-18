@@ -33,6 +33,13 @@ enum {
     ClkLast
 }; /* clicks */
 
+enum SgrFlags {
+    REVERSE = 1 << 0,
+    UNDERLINE = 1 << 1,
+    STRIKETHROUGH = 1 << 2,
+    OVERLINE = 1 << 3
+};
+
 typedef union {
     int i;
     unsigned int ui;
@@ -237,7 +244,7 @@ static void zoom(const Arg *arg);
 
 /* variables */
 static const char broken[] = "broken";
-static char stext[256];
+static char stext[512];
 static int screen;
 static int sw, sh; /* X display screen geometry width, height */
 static int bh;     /* bar height */
@@ -263,6 +270,7 @@ static Atom wmatom[WMLast], netatom[NetLast];
 static int running = 1;
 static Cur *cursor[CurLast];
 static Clr **scheme;
+static Clr barclrs[256];
 static Display *dpy;
 static Drw *drw;
 static Monitor *mons, *selmon;

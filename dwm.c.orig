@@ -20,7 +20,6 @@
  *
  * To understand everything else, start reading main().
  */
-#include <errno.h>
 #include <locale.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -41,242 +40,9 @@
 #endif /* XINERAMA */
 #include <X11/Xft/Xft.h>
 
-#include "drw.h"
 #include "util.h"
 
-/* macros */
-#define BUTTONMASK              (ButtonPressMask|ButtonReleaseMask)
-#define CLEANMASK(mask)         (mask & ~(numlockmask|LockMask) & (ShiftMask|ControlMask|Mod1Mask|Mod2Mask|Mod3Mask|Mod4Mask|Mod5Mask))
-#define INTERSECT(x,y,w,h,m)    (MAX(0, MIN((x)+(w),(m)->wx+(m)->ww) - MAX((x),(m)->wx)) \
-                               * MAX(0, MIN((y)+(h),(m)->wy+(m)->wh) - MAX((y),(m)->wy)))
-#define ISVISIBLE(C)            ((C->tags & C->mon->tagset[C->mon->seltags]))
-#define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
-#define WIDTH(X)                ((X)->w + 2 * (X)->bw)
-#define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
-#define TAGMASK                 ((1 << LENGTH(tags)) - 1)
-#define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
-#define OPAQUE                  0xffU
-
-/* enums */
-enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
-enum { SchemeNorm, SchemeSel, SchemeTitle }; /* color schemes */
-enum { NetSupported, NetWMName, NetWMState, NetWMCheck,
-       NetWMFullscreen, NetActiveWindow, NetWMWindowType,
-       NetWMWindowTypeDialog, NetClientList, NetLast }; /* EWMH atoms */
-enum { WMProtocols, WMDelete, WMState, WMTakeFocus, WMLast }; /* default atoms */
-enum { ClkTagBar, ClkLtSymbol, ClkStatusText, ClkWinTitle,
-       ClkClientWin, ClkRootWin, ClkLast }; /* clicks */
-
-typedef union {
-	int i;
-	unsigned int ui;
-	float f;
-	const void *v;
-} Arg;
-
-typedef struct {
-	unsigned int click;
-	unsigned int mask;
-	unsigned int button;
-	void (*func)(const Arg *arg);
-	const Arg arg;
-} Button;
-
-typedef struct Monitor Monitor;
-typedef struct Client Client;
-struct Client {
-	char name[256];
-	float mina, maxa;
-	int x, y, w, h;
-	int oldx, oldy, oldw, oldh;
-	int basew, baseh, incw, inch, maxw, maxh, minw, minh, hintsvalid;
-	int bw, oldbw;
-	unsigned int tags;
-	int isfixed, isfloating, isurgent, neverfocus, oldstate, isfullscreen;
-	Client *next;
-	Client *snext;
-	Monitor *mon;
-	Window win;
-};
-
-typedef struct {
-	unsigned int mod;
-	KeySym keysym;
-	void (*func)(const Arg *);
-	const Arg arg;
-} Key;
-
-typedef struct {
-	const char *symbol;
-	void (*arrange)(Monitor *);
-} Layout;
-
-struct Monitor {
-	char ltsymbol[16];
-	float mfact;
-	int nmaster;
-	int num;
-	int by;               /* bar geometry */
-	int mx, my, mw, mh;   /* screen size */
-	int wx, wy, ww, wh;   /* window area  */
-	int gappx;            /* gaps between windows */
-	unsigned int seltags;
-	unsigned int sellt;
-	unsigned int tagset[2];
-	int showbar;
-	int topbar;
-	Client *clients;
-	Client *sel;
-	Client *stack;
-	Monitor *next;
-	Window barwin;
-	const Layout *lt[2];
-};
-
-typedef struct {
-	const char *class;
-	const char *instance;
-	const char *title;
-	unsigned int tags;
-	int isfloating;
-	int monitor;
-} Rule;
-
-/* function declarations */
-static void applyrules(Client *c);
-static int applysizehints(Client *c, int *x, int *y, int *w, int *h, int interact);
-static void arrange(Monitor *m);
-static void arrangemon(Monitor *m);
-static void attach(Client *c);
-static void attachstack(Client *c);
-static void buttonpress(XEvent *e);
-static void checkotherwm(void);
-static void cleanup(void);
-static void cleanupmon(Monitor *mon);
-static void clientmessage(XEvent *e);
-static void configure(Client *c);
-static void configurenotify(XEvent *e);
-static void configurerequest(XEvent *e);
-static Monitor *createmon(void);
-static void destroynotify(XEvent *e);
-static void detach(Client *c);
-static void detachstack(Client *c);
-static Monitor *dirtomon(int dir);
-static void drawbar(Monitor *m);
-static void drawbars(void);
-static void enternotify(XEvent *e);
-static void expose(XEvent *e);
-static void focus(Client *c);
-static void focusin(XEvent *e);
-static void focusmon(const Arg *arg);
-static void focusstack(const Arg *arg);
-static Atom getatomprop(Client *c, Atom prop);
-static int getrootptr(int *x, int *y);
-static long getstate(Window w);
-static int gettextprop(Window w, Atom atom, char *text, unsigned int size);
-static void grabbuttons(Client *c, int focused);
-static void grabkeys(void);
-static void incnmaster(const Arg *arg);
-static void keypress(XEvent *e);
-static void killclient(const Arg *arg);
-static void manage(Window w, XWindowAttributes *wa);
-static void mappingnotify(XEvent *e);
-static void maprequest(XEvent *e);
-static void monocle(Monitor *m);
-static void motionnotify(XEvent *e);
-static void movemouse(const Arg *arg);
-static Client *nexttiled(Client *c);
-static void pop(Client *c);
-static void propertynotify(XEvent *e);
-static void quit(const Arg *arg);
-static Monitor *recttomon(int x, int y, int w, int h);
-static void resize(Client *c, int x, int y, int w, int h, int interact);
-static void resizeclient(Client *c, int x, int y, int w, int h);
-static void resizemouse(const Arg *arg);
-static void restack(Monitor *m);
-static void run(void);
-static void scan(void);
-static int sendevent(Client *c, Atom proto);
-static void sendmon(Client *c, Monitor *m);
-static void setclientstate(Client *c, long state);
-static void setfocus(Client *c);
-static void setfullscreen(Client *c, int fullscreen);
-static void setgaps(const Arg *arg);
-static void setlayout(const Arg *arg);
-static void setmfact(const Arg *arg);
-static void setup(void);
-static void seturgent(Client *c, int urg);
-static void showhide(Client *c);
-static void spawn(const Arg *arg);
-static void tag(const Arg *arg);
-static void tagmon(const Arg *arg);
-static void tile(Monitor *m);
-static void togglebar(const Arg *arg);
-static void togglefloating(const Arg *arg);
-static void toggletag(const Arg *arg);
-static void toggleview(const Arg *arg);
-static void unfocus(Client *c, int setfocus);
-static void unmanage(Client *c, int destroyed);
-static void unmapnotify(XEvent *e);
-static void updatebarpos(Monitor *m);
-static void updatebars(void);
-static void updateclientlist(void);
-static int updategeom(void);
-static void updatenumlockmask(void);
-static void updatesizehints(Client *c);
-static void updatestatus(void);
-static void updatetitle(Client *c);
-static void updatewindowtype(Client *c);
-static void updatewmhints(Client *c);
-static void view(const Arg *arg);
-static Client *wintoclient(Window w);
-static Monitor *wintomon(Window w);
-static int xerror(Display *dpy, XErrorEvent *ee);
-static int xerrordummy(Display *dpy, XErrorEvent *ee);
-static int xerrorstart(Display *dpy, XErrorEvent *ee);
-static void xinitvisual(void);
-static void zoom(const Arg *arg);
-
-/* variables */
-static const char broken[] = "broken";
-static char stext[256];
-static int screen;
-static int sw, sh;           /* X display screen geometry width, height */
-static int bh;               /* bar height */
-static int lrpad;            /* sum of left and right padding for text */
-static int vp;               /* vertical padding for bar */
-static int sp;               /* side padding for bar */
-static int (*xerrorxlib)(Display *, XErrorEvent *);
-static unsigned int numlockmask = 0;
-static void (*handler[LASTEvent]) (XEvent *) = {
-	[ButtonPress] = buttonpress,
-	[ClientMessage] = clientmessage,
-	[ConfigureRequest] = configurerequest,
-	[ConfigureNotify] = configurenotify,
-	[DestroyNotify] = destroynotify,
-	[EnterNotify] = enternotify,
-	[Expose] = expose,
-	[FocusIn] = focusin,
-	[KeyPress] = keypress,
-	[MappingNotify] = mappingnotify,
-	[MapRequest] = maprequest,
-	[MotionNotify] = motionnotify,
-	[PropertyNotify] = propertynotify,
-	[UnmapNotify] = unmapnotify
-};
-static Atom wmatom[WMLast], netatom[NetLast];
-static int running = 1;
-static Cur *cursor[CurLast];
-static Clr **scheme;
-static Display *dpy;
-static Drw *drw;
-static Monitor *mons, *selmon;
-static Window root, wmcheckwin;
-
-static int useargb = 0;
-static Visual *visual;
-static int depth;
-static Colormap cmap;
+#include "dwm.h"
 
 /* configuration, allows nested code to access above variables */
 #include "config.h"
@@ -451,10 +217,25 @@ buttonpress(XEvent *e)
 			arg.ui = 1 << i;
 		} else if (ev->x < x + TEXTW(selmon->ltsymbol))
 			click = ClkLtSymbol;
-		else if (ev->x > selmon->ww - (int)TEXTW(stext))
+		/* 2px right padding */
+		else if (ev->x > selmon->ww - TEXTW(stext) + lrpad - 2)
 			click = ClkStatusText;
-		else
-			click = ClkWinTitle;
+		else {
+			x += TEXTW(selmon->ltsymbol);
+			c = m->clients;
+
+			if (c) {
+				do {
+					if (!ISVISIBLE(c))
+						continue;
+					else
+						x +=(1.0 / (double)m->bt) * m->btw;
+				} while (ev->x > x && (c = c->next));
+
+				click = ClkWinTitle;
+				arg.v = c;
+			}
+		}
 	} else if ((c = wintoclient(ev->window))) {
 		focus(c);
 		restack(selmon);
@@ -464,7 +245,7 @@ buttonpress(XEvent *e)
 	for (i = 0; i < LENGTH(buttons); i++)
 		if (click == buttons[i].click && buttons[i].func && buttons[i].button == ev->button
 		&& CLEANMASK(buttons[i].mask) == CLEANMASK(ev->state))
-			buttons[i].func(click == ClkTagBar && buttons[i].arg.i == 0 ? &arg : &buttons[i].arg);
+			buttons[i].func((click == ClkTagBar || click == ClkWinTitle) && buttons[i].arg.i == 0 ? &arg : &buttons[i].arg);
 }
 
 void
@@ -709,7 +490,7 @@ dirtomon(int dir)
 void
 drawbar(Monitor *m)
 {
-	int x, w, tw = 0;
+	int x, w, tw = 0, n = 0, scm;
 	int boxs = drw->fonts->h / 9;
 	int boxw = drw->fonts->h / 6 + 2;
 	unsigned int i, occ = 0, urg = 0;
@@ -726,6 +507,8 @@ drawbar(Monitor *m)
 	}
 
 	for (c = m->clients; c; c = c->next) {
+		if (ISVISIBLE(c))
+			n++;
 		occ |= c->tags;
 		if (c->isurgent)
 			urg |= c->tags;
@@ -747,16 +530,37 @@ drawbar(Monitor *m)
 	x = drw_text(drw, x, 0, w, bh, lrpad / 2, m->ltsymbol, 0);
 
 	if ((w = m->ww - tw - x) > bh) {
-		if (m->sel) {
-			drw_setscheme(drw, scheme[m == selmon ? SchemeTitle : SchemeNorm]);
-			drw_text(drw, x, 0, w - 2 * sp, bh, lrpad / 2, m->sel->name, 0);
-			if (m->sel->isfloating)
-				drw_rect(drw, x + boxs, boxs, boxw, boxw, m->sel->isfixed, 0);
+		if (n > 0) {
+			int remainder = w % n;
+			int tabw_max = (1.0 / (double)n) * ((double)w * 0.9) + 1;
+            int tabw = tabw_max < 100 ? tabw_max : 100;
+			for (c = m->clients; c; c = c->next) {
+				if (!ISVISIBLE(c))
+					continue;
+				if (m->sel == c)
+					scm = SchemeSel;
+				else if (HIDDEN(c))
+					scm = SchemeHid;
+				else
+					scm = SchemeNorm;
+				drw_setscheme(drw, scheme[scm]);
+
+				if (remainder >= 0) {
+					if (remainder == 0) {
+						tabw--;
+					}
+					remainder--;
+				}
+				drw_text(drw, x, 0, tabw, bh, lrpad / 2, c->name, 0);
+				x += tabw;
+            }
 		} else {
 			drw_setscheme(drw, scheme[SchemeNorm]);
 			drw_rect(drw, x, 0, w - 2 * sp, bh, 1, 1);
 		}
 	}
+	m->bt = n;
+	m->btw = w;
 	drw_map(drw, m->barwin, 0, 0, m->ww, bh);
 }
 
@@ -802,9 +606,17 @@ void
 focus(Client *c)
 {
 	if (!c || !ISVISIBLE(c))
-		for (c = selmon->stack; c && !ISVISIBLE(c); c = c->snext);
-	if (selmon->sel && selmon->sel != c)
+		for (c = selmon->stack; c && (!ISVISIBLE(c) || HIDDEN(c)); c = c->snext);
+	if (selmon->sel && selmon->sel != c) {
 		unfocus(selmon->sel, 0);
+
+		if (selmon->hidsel) {
+			hidewin(selmon->sel);
+			if (c)
+				arrange(c->mon);
+			selmon->hidsel = 0;
+		}
+	}
 	if (c) {
 		if (c->mon != selmon)
 			selmon = c->mon;
@@ -848,28 +660,52 @@ focusmon(const Arg *arg)
 }
 
 void
-focusstack(const Arg *arg)
+focusstackvis(const Arg *arg) {
+	focusstack(arg->i, 0);
+}
+
+void
+focusstackhid(const Arg *arg) {
+	focusstack(arg->i, 1);
+}
+
+void
+focusstack(int inc, int hid)
 {
 	Client *c = NULL, *i;
-
-	if (!selmon->sel || (selmon->sel->isfullscreen && lockfullscreen))
+	// if no client selected AND exclude hidden client; if client selected but fullscreened
+	if ((!selmon->sel && !hid) || (selmon->sel && selmon->sel->isfullscreen && lockfullscreen))
 		return;
-	if (arg->i > 0) {
-		for (c = selmon->sel->next; c && !ISVISIBLE(c); c = c->next);
+	if (!selmon->clients)
+		return;
+	if (inc > 0) {
+		if (selmon->sel)
+			for (c = selmon->sel->next;
+					c && (!ISVISIBLE(c) || (!hid && HIDDEN(c)));
+					c = c->next);
 		if (!c)
-			for (c = selmon->clients; c && !ISVISIBLE(c); c = c->next);
+			for (c = selmon->clients;
+					c && (!ISVISIBLE(c) || (!hid && HIDDEN(c)));
+					c = c->next);
 	} else {
-		for (i = selmon->clients; i != selmon->sel; i = i->next)
-			if (ISVISIBLE(i))
-				c = i;
+		if (selmon->sel) {
+			for (i = selmon->clients; i != selmon->sel; i = i->next)
+				if (ISVISIBLE(i) && !(!hid && HIDDEN(i)))
+					c = i;
+		} else
+			c = selmon->clients;
 		if (!c)
 			for (; i; i = i->next)
-				if (ISVISIBLE(i))
+				if (ISVISIBLE(i) && !(!hid && HIDDEN(i)))
 					c = i;
 	}
 	if (c) {
 		focus(c);
 		restack(selmon);
+		if (HIDDEN(c)) {
+			showwin(c);
+			c->mon->hidsel = 1;
+		}
 	}
 }
 
@@ -990,6 +826,36 @@ grabkeys(void)
 }
 
 void
+hide(const Arg *arg)
+{
+	hidewin(selmon->sel);
+	focus(NULL);
+	arrange(selmon);
+}
+
+void
+hidewin(Client *c) {
+	if (!c || HIDDEN(c))
+		return;
+
+	Window w = c->win;
+	static XWindowAttributes ra, ca;
+
+	// more or less taken directly from blackbox's hide() function
+	XGrabServer(dpy);
+	XGetWindowAttributes(dpy, root, &ra);
+	XGetWindowAttributes(dpy, w, &ca);
+	// prevent UnmapNotify events
+	XSelectInput(dpy, root, ra.your_event_mask & ~SubstructureNotifyMask);
+	XSelectInput(dpy, w, ca.your_event_mask & ~StructureNotifyMask);
+	XUnmapWindow(dpy, w);
+	setclientstate(c, IconicState);
+	XSelectInput(dpy, root, ra.your_event_mask);
+	XSelectInput(dpy, w, ca.your_event_mask);
+	XUngrabServer(dpy);
+}
+
+void
 incnmaster(const Arg *arg)
 {
 	selmon->nmaster = MAX(selmon->nmaster + arg->i, 0);
@@ -1091,12 +957,14 @@ manage(Window w, XWindowAttributes *wa)
 	XChangeProperty(dpy, root, netatom[NetClientList], XA_WINDOW, 32, PropModeAppend,
 		(unsigned char *) &(c->win), 1);
 	XMoveResizeWindow(dpy, c->win, c->x + 2 * sw, c->y, c->w, c->h); /* some windows require this */
-	setclientstate(c, NormalState);
+	if (!HIDDEN(c))
+		setclientstate(c, NormalState);
 	if (c->mon == selmon)
 		unfocus(selmon->sel, 0);
 	c->mon->sel = c;
 	arrange(c->mon);
-	XMapWindow(dpy, c->win);
+	if (!HIDDEN(c))
+		XMapWindow(dpy, c->win);
 	focus(NULL);
 }
 
@@ -1217,7 +1085,7 @@ movemouse(const Arg *arg)
 Client *
 nexttiled(Client *c)
 {
-	for (; c && (c->isfloating || !ISVISIBLE(c)); c = c->next);
+	for (; c && (c->isfloating || !ISVISIBLE(c) || HIDDEN(c)); c = c->next);
 	return c;
 }
 
@@ -1270,6 +1138,16 @@ propertynotify(XEvent *e)
 void
 quit(const Arg *arg)
 {
+	// fix: reloading dwm keeps all the hidden clients hidden
+	Monitor *m;
+	Client *c;
+	for (m = mons; m; m = m->next) {
+		if (m) {
+			for (c = m->stack; c; c = c->next)
+				if (c && HIDDEN(c)) showwin(c);
+		}
+	}
+
 	running = 0;
 }
 
@@ -1653,6 +1531,42 @@ seturgent(Client *c, int urg)
 }
 
 void
+show(const Arg *arg)
+{
+	if (selmon->hidsel)
+		selmon->hidsel = 0;
+	showwin(selmon->sel);
+}
+
+void
+showall(const Arg *arg)
+{
+	Client *c = NULL;
+	selmon->hidsel = 0;
+	for (c = selmon->clients; c; c = c->next) {
+		if (ISVISIBLE(c))
+			showwin(c);
+	}
+	if (!selmon->sel) {
+		for (c = selmon->clients; c && !ISVISIBLE(c); c = c->next);
+		if (c)
+			focus(c);
+	}
+	restack(selmon);
+}
+
+void
+showwin(Client *c)
+{
+	if (!c || !HIDDEN(c))
+		return;
+
+	XMapWindow(dpy, c->win);
+	setclientstate(c, NormalState);
+	arrange(c->mon);
+}
+
+void
 showhide(Client *c)
 {
 	if (!c)
@@ -1785,6 +1699,23 @@ toggleview(const Arg *arg)
 		selmon->tagset[selmon->seltags] = newtagset;
 		focus(NULL);
 		arrange(selmon);
+	}
+}
+
+void
+togglewin(const Arg *arg)
+{
+	Client *c = (Client*)arg->v;
+
+	if (c == selmon->sel) {
+		hidewin(c);
+		focus(NULL);
+		arrange(c->mon);
+	} else {
+		if (HIDDEN(c))
+			showwin(c);
+		focus(c);
+		restack(selmon);
 	}
 }
 
@@ -2203,6 +2134,74 @@ zoom(const Arg *arg)
 	if (c == nexttiled(selmon->clients) && !(c = nexttiled(c->next)))
 		return;
 	pop(c);
+}
+
+void
+fibonacci(Monitor *mon, int s) {
+	unsigned int i, n, nx, ny, nw, nh, gappx;
+	Client *c;
+
+	for(n = 0, c = nexttiled(mon->clients); c; c = nexttiled(c->next), n++);
+	if(n == 0)
+		return;
+	
+    gappx = mon->gappx;
+	nx = mon->wx;
+	ny = 0;
+	nw = mon->ww - gappx;
+	nh = mon->wh;
+	
+	for(i = 0, c = nexttiled(mon->clients); c; c = nexttiled(c->next)) {
+		if((i % 2 && nh / 2 > 2 * (c->bw + gappx))
+		   || (!(i % 2) && nw / 2 > 2 * (c->bw + gappx))) {
+			if(i < n - 1) {
+				if(i % 2)
+					nh /= 2;
+				else
+					nw /= 2;
+				if((i % 4) == 2 && !s)
+					nx += nw;
+				else if((i % 4) == 3 && !s)
+					ny += nh;
+			}
+			if((i % 4) == 0) {
+				if(s)
+					ny += nh;
+				else
+					ny -= nh;
+			}
+			else if((i % 4) == 1)
+				nx += nw;
+			else if((i % 4) == 2)
+				ny += nh;
+			else if((i % 4) == 3) {
+				if(s)
+					nx += nw;
+				else
+					nx -= nw;
+			}
+			if(i == 0)
+			{
+				if(n != 1)
+					nw = mon->ww * mon->mfact;
+				ny = mon->wy;
+			}
+			else if(i == 1)
+				nw = mon->ww - nw;
+			i++;
+		}
+		resize(c, nx + gappx, ny + gappx, nw - 2 * c->bw - 2*gappx, nh - 2 * c->bw - 2*gappx, False);
+	}
+}
+
+void
+dwindle(Monitor *mon) {
+	fibonacci(mon, 1);
+}
+
+void
+spiral(Monitor *mon) {
+	fibonacci(mon, 0);
 }
 
 int

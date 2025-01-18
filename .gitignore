@@ -3,4 +3,5 @@ compile_commands.json
 /build
 /.cache
 PKGBUILD
+*.rej
 /src

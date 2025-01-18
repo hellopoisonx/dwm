@@ -778,7 +778,7 @@ drawbar(Monitor *m)
 	if ((w = m->ww - tw - x) > bh) {
 		if (n > 0) {
 			int remainder = w % n;
-			int tabw = (1.0 / (double)n) * w + 1;
+			int tabw = (1.0 / (double)n) * ((double)w * 0.8) + 1;
 			for (c = m->clients; c; c = c->next) {
 				if (!ISVISIBLE(c))
 					continue;

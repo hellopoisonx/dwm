@@ -26,6 +26,7 @@
 #include <X11/Xproto.h>
 #include <X11/Xutil.h>
 #include <X11/cursorfont.h>
+#include <X11/extensions/Xrender.h>
 #include <X11/keysym.h>
 #include <locale.h>
 #include <signal.h>
@@ -176,8 +177,16 @@ void arrangemon(Monitor *m) {
 }
 
 void attach(Client *c) {
-    c->next = c->mon->clients;
-    c->mon->clients = c;
+    Client *curr = c->mon->clients;
+    if (!curr) {
+        c->mon->clients = c;
+        c->next = NULL;
+        return;
+    }
+    for (; curr->next; curr = curr->next)
+        ;
+    curr->next = c;
+    c->next = NULL;
 }
 
 void attachstack(Client *c) {
@@ -491,6 +500,10 @@ void drawbar(Monitor *m) {
 
     if (!m->showbar)
         return;
+
+    /* draw the normal bar in advantage to cover the old bar */
+    drw_setscheme(drw, scheme[SchemeNorm]);
+    drw_rect(drw, 0, m->by, m->mw, bh, 1, 1);
 
     /* draw status first so it can be overdrawn by tags later */
     if (m == selmon) { /* status is only drawn on selected monitor */
@@ -1135,6 +1148,43 @@ void monocle(Monitor *m) {
         snprintf(m->ltsymbol, sizeof m->ltsymbol, "[%d]", n);
     for (c = nexttiled(m->clients); c; c = nexttiled(c->next))
         resize(c, m->wx, m->wy, m->ww - 2 * c->bw, m->wh - 2 * c->bw, 0);
+}
+
+void grid(Monitor *m) {
+    unsigned int n, columns, rows, cx, cy, ch, cw;
+    Client *c;
+
+    for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++)
+        ;
+    if (n == 0)
+        return;
+    else if (n == 1) {
+        rows = 1;
+        columns = 1;
+    } else if (n == 2) {
+        rows = 1;
+        columns = 2;
+    } else {
+        for (columns = 0; columns < n / 2 && columns * columns <= n; columns++)
+            ;
+        rows = n / columns + (n % columns ? 1 : 0);
+    }
+
+    cw = m->ww / columns;
+    ch = m->wh / rows;
+
+    c = nexttiled(m->clients);
+    cy = m->wy;
+    for (int i = 0; i < rows && c; i++) {
+        cx = m->wx;
+        for (int j = 0; j < columns && c; j++) {
+            resize(c, cx + m->gappx, cy + m->gappx, cw - 2 * m->gappx,
+                   ch - 2 * m->gappx, 0);
+            cx += cw;
+            c = c->next;
+        }
+        cy += ch;
+    }
 }
 
 void motionnotify(XEvent *e) {

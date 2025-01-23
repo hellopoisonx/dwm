@@ -1,5 +1,7 @@
 /* See LICENSE file for copyright and license details. */
+#include "dwm.h"
 #include "themes/catppuccin.h"
+#include <X11/X.h>
 #include <X11/XF86keysym.h>
 #include <X11/keysym.h>
 
@@ -30,22 +32,9 @@ static const unsigned int alphas[][3] = {
 };
 
 static const char *barcolors[] = {
-	"#000000",
-	"#7f0000",
-	"#007f00",
-	"#7f7f00",
-	"#00007f",
-	"#7f007f",
-	"#007f7f",
-	"#cccccc",
-	"#333333",
-	"#ff0000",
-	"#00ff00",
-	"#ffff00",
-	"#0000ff",
-	"#ff00ff",
-	"#00ffff",
-	"#ffffff",
+    "#000000", "#7f0000", "#007f00", "#7f7f00", "#00007f", "#7f007f",
+    "#007f7f", "#cccccc", "#333333", "#ff0000", "#00ff00", "#ffff00",
+    "#0000ff", "#ff00ff", "#00ffff", "#ffffff",
 };
 
 /* tagging */
@@ -71,11 +60,10 @@ static const int lockfullscreen =
 
 static const Layout layouts[] = {
     /* symbol     arrange function */
-    {"[\\]", dwindle}, /* first entry is default */
-    {"[T]", tile},
-    {"[]", NULL}, /* no layout function means floating behavior */
-    {"[M]", monocle},
-    {"[@]", spiral},
+    {"[\\]", dwindle},               /* first entry is default */
+    {"[T]", tile},     {"[]", NULL}, /* no layout function means floating
+                                        behavior */
+    {"[M]", monocle},  {"[@]", spiral}, {"[G]", grid},
 };
 
 /* key definitions */
@@ -140,6 +128,7 @@ static const Key keys[] = {
     {MODKEY, XK_m, setlayout, {.v = &layouts[3]}},
     {MODKEY, XK_r, setlayout, {.v = &layouts[0]}},
     {MODKEY | ShiftMask, XK_r, setlayout, {.v = &layouts[4]}},
+    {MODKEY, XK_g, setlayout, {.v = &layouts[5]}},
     {MODKEY, XK_space, setlayout, {0}},
     {MODKEY | ShiftMask, XK_space, togglefloating, {0}},
     {MODKEY, XK_0, view, {.ui = ~0}},

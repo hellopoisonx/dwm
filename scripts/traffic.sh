@@ -31,7 +31,7 @@ calc() {
     _up=$(printf "%8s" "$(to_human_readable "$upload_speed")")
     _down=$(printf "%8s" "$(to_human_readable "$download_speed")")
 
-    echo "$seq[4;48;5;69m:$_up $seq[0m$seq[4;48;5;93m:$_down$seq[0m"
+    echo "$seq[4;48;5;69m$seq[4;38;5;18m: $_up $seq[0m$seq[4;48;5;93m$seq[4;38;5;18m:$_down $seq[0m"
 }
 
 outputFifo=$1

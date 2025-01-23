@@ -1,5 +1,6 @@
 #!/bin/bash
+seq=""
 while true; do
-    echo ":$(date +%Y-%m-%d\ %H:%M:%S)" > "$1"
+    echo "$seq[4;48;5;124m$seq[4;38;5;18m :$(date +%Y-%m-%d\ %H:%M:%S) $seq[0m"> "$1"
     sleep 1
 done

@@ -287,7 +287,7 @@ Atom wmatom[WMLast], netatom[NetLast], xatom[XLast];
 static int running = 1;
 static Cur *cursor[CurLast];
 static Clr **scheme;
-static Clr *barclrs;
+static Clr barclrs[256];
 static Display *dpy;
 static Drw *drw;
 static Monitor *mons, *selmon;

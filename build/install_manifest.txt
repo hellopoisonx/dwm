@@ -1,9 +1,0 @@
-/usr/local/bin/dwm
-/usr/local/share/man/man1/dwm.1
-/usr/local/bin/bar.sh
-/usr/local/bin/mem.sh
-/usr/local/bin/light.sh
-/usr/local/bin/volume.sh
-/usr/local/bin/time.sh
-/usr/local/bin/traffic.sh
-/usr/local/bin/caps_lock.sh

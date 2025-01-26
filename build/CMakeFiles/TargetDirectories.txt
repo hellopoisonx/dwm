@@ -1,7 +1,0 @@
-/home/hpxx/dwm_orig/build/CMakeFiles/dwm.dir
-/home/hpxx/dwm_orig/build/CMakeFiles/edit_cache.dir
-/home/hpxx/dwm_orig/build/CMakeFiles/rebuild_cache.dir
-/home/hpxx/dwm_orig/build/CMakeFiles/list_install_components.dir
-/home/hpxx/dwm_orig/build/CMakeFiles/install.dir
-/home/hpxx/dwm_orig/build/CMakeFiles/install/local.dir
-/home/hpxx/dwm_orig/build/CMakeFiles/install/strip.dir

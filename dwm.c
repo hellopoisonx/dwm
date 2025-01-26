@@ -790,7 +790,7 @@ void drawbar(Monitor *m) {
         if (n > 0) {
             int remainder = w % n;
             int tabw_max = w * (1.0 / (double)n) + 1;
-            int tabw = tabw_max > 60 ? 60 : tabw_max;
+            int tabw = tabw_max > 90 ? 90 : tabw_max;
             for (c = m->clients; c; c = c->next) {
                 if (!ISVISIBLE(c))
                     continue;

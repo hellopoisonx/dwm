@@ -12,6 +12,7 @@
     (MAX(0, MIN((x) + (w), (m)->wx + (m)->ww) - MAX((x), (m)->wx)) *           \
      MAX(0, MIN((y) + (h), (m)->wy + (m)->wh) - MAX((y), (m)->wy)))
 #define ISVISIBLE(C) ((C->tags & C->mon->tagset[C->mon->seltags]))
+#define HIDDEN(C) ((getstate(C->win) == IconicState))
 #define MOUSEMASK (BUTTONMASK | PointerMotionMask)
 #define WIDTH(X) ((X)->w + 2 * (X)->bw)
 #define HEIGHT(X) ((X)->h + 2 * (X)->bw)
@@ -39,7 +40,7 @@ enum SgrFlags {
     OVERLINE = 1 << 3
 };
 enum { CurNormal, CurResize, CurMove, CurLast }; /* cursor */
-enum { SchemeNorm, SchemeSel };                  /* color schemes */
+enum { SchemeNorm, SchemeSel, SchemeHid };       /* color schemes */
 enum {
     NetSupported,
     NetWMName,
@@ -124,6 +125,8 @@ struct Monitor {
     int nmaster;
     int num;
     int by;             /* bar geometry */
+    int btw;            /* width of tasks portion of bar */
+    int bt;             /* number of tasks */
     int mx, my, mw, mh; /* screen size */
     int wx, wy, ww, wh; /* window area  */
     unsigned int seltags;
@@ -131,6 +134,7 @@ struct Monitor {
     unsigned int tagset[2];
     int showbar;
     int topbar;
+    int hidsel;
     Client *clients;
     Client *sel;
     Client *stack;
@@ -181,7 +185,9 @@ void expose(XEvent *e);
 void focus(Client *c);
 void focusin(XEvent *e);
 void focusmon(const Arg *arg);
-void focusstack(const Arg *arg);
+void focusstackvis(const Arg *arg);
+void focusstackhid(const Arg *arg);
+void focusstack(int inc, int vis);
 Atom getatomprop(Client *c, Atom prop);
 int getrootptr(int *x, int *y);
 long getstate(Window w);
@@ -189,6 +195,8 @@ unsigned int getsystraywidth();
 int gettextprop(Window w, Atom atom, char *text, unsigned int size);
 void grabbuttons(Client *c, int focused);
 void grabkeys(void);
+void hide(const Arg *arg);
+void hidewin(Client *c);
 void incnmaster(const Arg *arg);
 void keypress(XEvent *e);
 void killclient(const Arg *arg);
@@ -222,6 +230,9 @@ void setlayout(const Arg *arg);
 void setmfact(const Arg *arg);
 void setup(void);
 void seturgent(Client *c, int urg);
+void show(const Arg *arg);
+void showall(const Arg *arg);
+void showwin(Client *c);
 void showhide(Client *c);
 void spawn(const Arg *arg);
 Monitor *systraytomon(Monitor *m);
@@ -232,6 +243,7 @@ void togglebar(const Arg *arg);
 void togglefloating(const Arg *arg);
 void toggletag(const Arg *arg);
 void toggleview(const Arg *arg);
+void togglewin(const Arg *arg);
 void unfocus(Client *c, int setfocus);
 void unmanage(Client *c, int destroyed);
 void unmapnotify(XEvent *e);

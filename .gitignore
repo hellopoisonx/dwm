@@ -1,0 +1,7 @@
+compile_commands.json
+/result
+/build
+/.cache
+PKGBUILD
+*.rej
+/src

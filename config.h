@@ -25,6 +25,25 @@ static const char *colors[][3] = {
     [SchemeSel] = {sel_fg, sel_bg, sel_border},
 };
 
+static const char *barcolors[] = {
+	"#000000",
+	"#7f0000",
+	"#007f00",
+	"#7f7f00",
+	"#00007f",
+	"#7f007f",
+	"#007f7f",
+	"#cccccc",
+	"#333333",
+	"#ff0000",
+	"#00ff00",
+	"#ffff00",
+	"#0000ff",
+	"#ff00ff",
+	"#00ffff",
+	"#ffffff",
+};
+
 /* tagging */
 static const char *tags[] = {"1", "2", "3", "4", "5", "6", "7", "8", "9"};
 
@@ -48,13 +67,13 @@ static const int lockfullscreen =
 
 static const Layout layouts[] = {
     /* symbol     arrange function */
-    {"[]=", tile}, /* first entry is default */
-    {"><>", NULL}, /* no layout function means floating behavior */
+    {"[T]=", tile}, /* first entry is default */
+    {"[]", NULL},   /* no layout function means floating behavior */
     {"[M]", monocle},
 };
 
 /* key definitions */
-#define MODKEY Mod1Mask
+#define MODKEY Mod4Mask
 #define TAGKEYS(KEY, TAG)                                                      \
     {MODKEY, KEY, view, {.ui = 1 << TAG}},                                     \
         {MODKEY | ControlMask, KEY, toggleview, {.ui = 1 << TAG}},             \

@@ -129,6 +129,7 @@ struct Monitor {
     int bt;             /* number of tasks */
     int mx, my, mw, mh; /* screen size */
     int wx, wy, ww, wh; /* window area  */
+    int gappx;          /* gaps between windows */
     unsigned int seltags;
     unsigned int sellt;
     unsigned int tagset[2];
@@ -226,6 +227,7 @@ void sendmon(Client *c, Monitor *m);
 void setclientstate(Client *c, long state);
 void setfocus(Client *c);
 void setfullscreen(Client *c, int fullscreen);
+void setgaps(const Arg *arg);
 void setlayout(const Arg *arg);
 void setmfact(const Arg *arg);
 void setup(void);

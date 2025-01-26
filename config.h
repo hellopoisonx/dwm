@@ -5,6 +5,7 @@
 /* appearance */
 static const unsigned int borderpx = 3; /* border pixel of windows */
 static const unsigned int snap = 32;    /* snap pixel */
+static const unsigned int gappx = 6;    /* gaps between windows */
 static const unsigned int systraypinning =
     0; /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor
           X */
@@ -109,6 +110,9 @@ static const Key keys[] = {
     {MODKEY, XK_period, focusmon, {.i = +1}},
     {MODKEY | ShiftMask, XK_comma, tagmon, {.i = -1}},
     {MODKEY | ShiftMask, XK_period, tagmon, {.i = +1}},
+    {MODKEY, XK_minus, setgaps, {.i = -1}},
+    {MODKEY, XK_equal, setgaps, {.i = +1}},
+    {MODKEY | ShiftMask, XK_equal, setgaps, {.i = 0}},
     {MODKEY, XK_s, show, {0}},
     {MODKEY | ShiftMask, XK_s, showall, {0}},
     {MODKEY, XK_h, hide, {0}},

@@ -1,0 +1,9 @@
+static const char fg[] = "#F5C2E7";
+static const char bg[] = "#45475a";
+static const char border[] = "#6c7086";
+static const char sel_fg[] = "#8839EF";
+static const char sel_bg[] = "#313244";
+static const char sel_border[] = "#CBA6F7";
+static const char hid_fg[] = "#b4befe";
+static const char hid_bg[] = "#585b70";
+static const char hid_border[] = "#CDD6F4";

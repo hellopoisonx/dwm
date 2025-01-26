@@ -1,0 +1,20 @@
+[
+{
+  "directory": "/home/hpxx/dwm_orig/build",
+  "command": "/usr/bin/cc -DVERSION=\\\"6.5\\\" -I/home/hpxx/dwm_orig -I/usr/include/freetype2 -std=gnu99 -o CMakeFiles/dwm.dir/drw.c.o -c /home/hpxx/dwm_orig/drw.c",
+  "file": "/home/hpxx/dwm_orig/drw.c",
+  "output": "CMakeFiles/dwm.dir/drw.c.o"
+},
+{
+  "directory": "/home/hpxx/dwm_orig/build",
+  "command": "/usr/bin/cc -DVERSION=\\\"6.5\\\" -I/home/hpxx/dwm_orig -I/usr/include/freetype2 -std=gnu99 -o CMakeFiles/dwm.dir/dwm.c.o -c /home/hpxx/dwm_orig/dwm.c",
+  "file": "/home/hpxx/dwm_orig/dwm.c",
+  "output": "CMakeFiles/dwm.dir/dwm.c.o"
+},
+{
+  "directory": "/home/hpxx/dwm_orig/build",
+  "command": "/usr/bin/cc -DVERSION=\\\"6.5\\\" -I/home/hpxx/dwm_orig -I/usr/include/freetype2 -std=gnu99 -o CMakeFiles/dwm.dir/util.c.o -c /home/hpxx/dwm_orig/util.c",
+  "file": "/home/hpxx/dwm_orig/util.c",
+  "output": "CMakeFiles/dwm.dir/util.c.o"
+}
+]

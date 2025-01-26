@@ -1,0 +1,1 @@
+/usr/bin/cc -Wl,--dependency-file=CMakeFiles/dwm.dir/link.d CMakeFiles/dwm.dir/drw.c.o CMakeFiles/dwm.dir/dwm.c.o CMakeFiles/dwm.dir/util.c.o -o dwm  /usr/lib/libfontconfig.so /usr/lib/libSM.so /usr/lib/libICE.so /usr/lib/libX11.so /usr/lib/libXext.so /usr/lib/libXft.so /usr/lib/libfreetype.so

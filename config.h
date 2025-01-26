@@ -18,7 +18,8 @@ static const int systraypinningfailfirst =
 static const int showsystray = 1; /* 0 means no systray */
 static const int showbar = 1;     /* 0 means no bar */
 static const int topbar = 1;      /* 0 means bottom bar */
-static const char *fonts[] = {"monospace:size=10"};
+static const char *fonts[] = {"JetBrainsMono Nerd Font Mono:size=11",
+                              "LXGW WenKai Mono:size=11"};
 static const char dmenufont[] = "monospace:size=10";
 static const char *colors[][3] = {
     /*               fg         bg         border   */
@@ -56,7 +57,7 @@ static const int lockfullscreen =
 
 static const Layout layouts[] = {
     /* symbol     arrange function */
-    {"[T]=", tile}, /* first entry is default */
+    {"[T]", tile}, /* first entry is default */
     {"[]", NULL},   /* no layout function means floating behavior */
     {"[M]", monocle},
 };

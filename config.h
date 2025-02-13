@@ -1,6 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include "dwm.h"
 #include "themes/catppuccin.h"
+#include <X11/XF86keysym.h>
 
 /* appearance */
 static const unsigned int borderpx = 3; /* border pixel of windows */
@@ -58,7 +59,7 @@ static const int lockfullscreen =
 static const Layout layouts[] = {
     /* symbol     arrange function */
     {"[T]", tile}, /* first entry is default */
-    {"[]", NULL},   /* no layout function means floating behavior */
+    {"[]", NULL},  /* no layout function means floating behavior */
     {"[M]", monocle},
 };
 
@@ -84,8 +85,29 @@ static const char *dmenucmd[] = {"dmenu_run", "-m",  dmenumon, "-fn", dmenufont,
                                  sel_bg,      "-sf", sel_fg,   NULL};
 static const char *termcmd[] = {"kitty", NULL};
 
+static const char *volume_up[] = {"pactl", "set-sink-volume", "@DEFAULT_SINK@",
+                                  "+5%", NULL};
+static const char *volume_down[] = {"pactl", "set-sink-volume",
+                                    "@DEFAULT_SINK@", "-5%", NULL};
+static const char *volume_mute[] = {"pactl", "set-sink-mute", "@DEFAULT_SINK@",
+                                    "toggle", NULL};
+
+static const char *light_up[] = {"light", "-A", "5", NULL};
+static const char *light_down[] = {"light", "-U", "5", NULL};
+
+static const char *lock[] = {"slock", NULL};
+
+static const char *screen_capture[] = {"flameshot", "gui", NULL};
+
 static const Key keys[] = {
     /* modifier                     key        function        argument */
+    {0, XF86XK_AudioLowerVolume, spawn, {.v = volume_down}},
+    {0, XF86XK_AudioRaiseVolume, spawn, {.v = volume_up}},
+    {0, XF86XK_AudioMute, spawn, {.v = volume_mute}},
+    {0, XF86XK_KbdBrightnessDown, spawn, {.v = light_down}},
+    {0, XF86XK_KbdBrightnessUp, spawn, {.v = light_up}},
+    {MODKEY | ShiftMask, XK_l, spawn, {.v = lock}},
+    {MODKEY | ShiftMask, XK_p, spawn, {.v = screen_capture}},
     {MODKEY, XK_p, spawn, {.v = dmenucmd}},
     {MODKEY | ShiftMask, XK_Return, spawn, {.v = termcmd}},
     {MODKEY, XK_b, togglebar, {0}},
@@ -116,7 +138,7 @@ static const Key keys[] = {
     {MODKEY | ShiftMask, XK_equal, setgaps, {.i = 0}},
     {MODKEY, XK_s, show, {0}},
     {MODKEY | ShiftMask, XK_s, showall, {0}},
-    {MODKEY, XK_h, hide, {0}},
+    {MODKEY, XK_y, hide, {0}},
     TAGKEYS(XK_1, 0) TAGKEYS(XK_2, 1) TAGKEYS(XK_3, 2) TAGKEYS(XK_4, 3)
         TAGKEYS(XK_5, 4) TAGKEYS(XK_6, 5) TAGKEYS(XK_7, 6) TAGKEYS(XK_8, 7)
             TAGKEYS(XK_9, 8){MODKEY | ShiftMask, XK_c, quit, {0}},

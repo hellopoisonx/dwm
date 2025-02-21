@@ -36,17 +36,6 @@ install(
   PERMISSIONS ${PERMISSIONS_644})
 
 install(
-  FILES ./scripts/bar.sh
-        ./scripts/mem.sh
-        ./scripts/light.sh
-        ./scripts/volume.sh
-        ./scripts/time.sh
-        ./scripts/traffic.sh
-        ./scripts/caps_lock.sh
-  DESTINATION ${CMAKE_INSTALL_PREFIX}/bin
-  PERMISSIONS ${PERMISSIONS_755})
-
-install(
   CODE "execute_process(COMMAND sed -i \"s/VERSION/${DWM_VERSION}/g\" ${CMAKE_INSTALL_PREFIX}/share/man/man1/dwm.1)"
 )
 
